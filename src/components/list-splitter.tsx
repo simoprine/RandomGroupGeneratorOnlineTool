@@ -3,7 +3,7 @@
 
 import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,9 +11,10 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Copy, Download, Shuffle, Trash2, ListTree, Users, Split, AlertCircle } from 'lucide-react';
+import { Copy, Download, Shuffle, Trash2, Split, AlertCircle, UsersRound, ListChecks, Spline } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast"
 import { Separator } from './ui/separator';
+import { ModeToggle } from './theme-toggle';
 
 export function ListSplitter() {
   const [listInput, setListInput] = useState('');
@@ -23,21 +24,25 @@ export function ListSplitter() {
   const [removeDuplicates, setRemoveDuplicates] = useState(false);
   const [outputGroups, setOutputGroups] = useState<string[][]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [duplicatesRemovedCount, setDuplicatesRemovedCount] = useState<number | null>(null);
   const { toast } = useToast();
 
   const handleSplit = useCallback(() => {
     setError(null);
-    setOutputGroups([]);
+    setDuplicatesRemovedCount(null);
 
     let items = listInput.split('\n').map(item => item.trim()).filter(item => item);
 
     if (items.length === 0) {
       setError("Your input list is empty. Please add some items.");
+      setOutputGroups([]);
       return;
     }
     
     if (removeDuplicates) {
-      items = [...new Set(items)];
+      const uniqueItems = [...new Set(items)];
+      setDuplicatesRemovedCount(items.length - uniqueItems.length);
+      items = uniqueItems;
     }
 
     if (randomize) {
@@ -50,11 +55,18 @@ export function ListSplitter() {
     const numValue = parseInt(splitValue, 10);
     if (isNaN(numValue) || numValue <= 0) {
       setError("Please enter a valid, positive number for splitting.");
+      setOutputGroups([]);
       return;
     }
 
-    if (numValue > items.length) {
+    if (items.length > 0 && numValue > items.length) {
       setError(`The split value (${numValue}) cannot be greater than the number of items (${items.length}).`);
+      setOutputGroups([]);
+      return;
+    }
+    
+    if (items.length === 0) {
+      setOutputGroups([]);
       return;
     }
 
@@ -79,7 +91,7 @@ export function ListSplitter() {
     await navigator.clipboard.writeText(textToCopy);
     toast({
       title: "Group Copied!",
-      description: `Group ${index + 1} with ${group.length} items has been copied to your clipboard.`,
+      description: `Group ${index + 1} has been copied to your clipboard.`,
     })
   }, [toast]);
 
@@ -98,7 +110,10 @@ export function ListSplitter() {
 
   return (
     <div className="container mx-auto p-4 md:p-8">
-      <header className="text-center mb-8 md:mb-12">
+      <header className="relative text-center mb-8 md:mb-12">
+        <div className="absolute top-0 right-0">
+          <ModeToggle />
+        </div>
         <h1 className="font-headline text-4xl md:text-5xl font-bold tracking-tighter">List Splitter</h1>
         <p className="text-lg md:text-xl text-muted-foreground mt-2 max-w-2xl mx-auto">
           Paste your list, choose your options, and split it into groups instantly.
@@ -133,11 +148,11 @@ export function ListSplitter() {
                 <RadioGroup value={splitBy} onValueChange={(value: 'groups' | 'items') => setSplitBy(value)} className="flex gap-4">
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="groups" id="groups" />
-                    <Label htmlFor="groups" className="flex items-center gap-2 cursor-pointer"><ListTree /> Number of Groups</Label>
+                    <Label htmlFor="groups" className="flex items-center gap-2 cursor-pointer"><UsersRound className="h-5 w-5"/> Number of Groups</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="items" id="items" />
-                    <Label htmlFor="items" className="flex items-center gap-2 cursor-pointer"><Users /> Items per Group</Label>
+                    <Label htmlFor="items" className="flex items-center gap-2 cursor-pointer"><ListChecks className="h-5 w-5"/> Items per Group</Label>
                   </div>
                 </RadioGroup>
               </div>
@@ -151,19 +166,24 @@ export function ListSplitter() {
                 className="text-base"
               />
               <Separator />
-               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
                   <Checkbox id="randomize" checked={randomize} onCheckedChange={(checked) => setRandomize(Boolean(checked))} />
-                  <Label htmlFor="randomize" className="flex items-center gap-2 font-normal cursor-pointer"><Shuffle /> Randomize order</Label>
+                  <Label htmlFor="randomize" className="flex items-center gap-2 font-normal cursor-pointer"><Shuffle className="h-5 w-5" /> Randomize order</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="deduplicate" checked={removeDuplicates} onCheckedChange={(checked) => setRemoveDuplicates(Boolean(checked))} />
-                  <Label htmlFor="deduplicate" className="flex items-center gap-2 font-normal cursor-pointer"><Trash2 /> Remove duplicates</Label>
+                  <Checkbox id="deduplicate" checked={removeDuplicates} onCheckedChange={(checked) => {
+                    setRemoveDuplicates(Boolean(checked));
+                    if (!Boolean(checked)) {
+                      setDuplicatesRemovedCount(null);
+                    }
+                  }} />
+                  <Label htmlFor="deduplicate" className="flex items-center gap-2 font-normal cursor-pointer"><Trash2 className="h-5 w-5" /> Remove duplicates</Label>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Button onClick={handleSplit} size="lg" className="w-full text-lg py-6 bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg">
+          <Button onClick={handleSplit} size="lg" className="w-full text-lg py-6 shadow-lg">
             <Split className="mr-2 h-5 w-5"/> Split List
           </Button>
         </div>
@@ -175,6 +195,16 @@ export function ListSplitter() {
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Error</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {duplicatesRemovedCount !== null && duplicatesRemovedCount > 0 && (
+            <Alert className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Duplicates Removed</AlertTitle>
+              <AlertDescription>
+                {duplicatesRemovedCount} duplicate item{duplicatesRemovedCount !== 1 ? 's were' : ' was'} removed.
+              </AlertDescription>
             </Alert>
           )}
 
@@ -211,7 +241,7 @@ export function ListSplitter() {
           ) : (
             <div className="flex flex-col items-center justify-center text-center border-2 border-dashed rounded-lg p-12 h-full min-h-[400px]">
               <div className="bg-primary/20 rounded-full p-4">
-                 <ListTree className="h-12 w-12 text-primary" />
+                 <Spline className="h-12 w-12 text-primary" />
               </div>
               <p className="mt-4 text-lg font-medium text-muted-foreground">Your split groups will appear here.</p>
               <p className="text-sm text-muted-foreground">Fill in the details on the left and click "Split List".</p>
