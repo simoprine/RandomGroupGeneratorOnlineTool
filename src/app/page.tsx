@@ -1,7 +1,7 @@
-import { ListSplitter } from "@/components/list-splitter";
+import { RandomGroupGenerator } from "@/components/random-group-generator";
 
 export default function Home() {
   return (
-    <ListSplitter />
+    <RandomGroupGenerator />
   );
 }

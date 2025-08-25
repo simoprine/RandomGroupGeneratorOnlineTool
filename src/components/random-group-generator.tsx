@@ -16,11 +16,11 @@ import { useToast } from "@/hooks/use-toast"
 import { Separator } from './ui/separator';
 import { ModeToggle } from './theme-toggle';
 
-export function ListSplitter() {
+export function RandomGroupGenerator() {
   const [listInput, setListInput] = useState('');
   const [splitBy, setSplitBy] = useState<'groups' | 'items'>('groups');
   const [splitValue, setSplitValue] = useState('2');
-  const [randomize, setRandomize] = useState(false);
+  const [randomize, setRandomize] = useState(true);
   const [removeDuplicates, setRemoveDuplicates] = useState(false);
   const [outputGroups, setOutputGroups] = useState<string[][]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -114,9 +114,9 @@ export function ListSplitter() {
         <div className="absolute top-0 right-0">
           <ModeToggle />
         </div>
-        <h1 className="font-headline text-4xl md:text-5xl font-bold tracking-tighter">List Splitter</h1>
+        <h1 className="font-headline text-4xl md:text-5xl font-bold tracking-tighter">Random Group Generator</h1>
         <p className="text-lg md:text-xl text-muted-foreground mt-2 max-w-2xl mx-auto">
-          Paste your list, choose your options, and split it into groups instantly.
+          Paste your list, choose your options, and generate groups instantly.
         </p>
       </header>
       
@@ -140,7 +140,7 @@ export function ListSplitter() {
           <Card className="shadow-md">
             <CardHeader>
               <CardTitle className="font-headline text-2xl">2. Set Options</CardTitle>
-              <CardDescription>Define how you want to split the list.</CardDescription>
+              <CardDescription>Define how you want to generate groups.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
@@ -184,7 +184,7 @@ export function ListSplitter() {
             </CardContent>
           </Card>
           <Button onClick={handleSplit} size="lg" className="w-full text-lg py-6 shadow-lg">
-            <Split className="mr-2 h-5 w-5"/> Split List
+            <Split className="mr-2 h-5 w-5"/> Generate Groups
           </Button>
         </div>
         
@@ -243,8 +243,8 @@ export function ListSplitter() {
               <div className="bg-primary/20 rounded-full p-4">
                  <Spline className="h-12 w-12 text-primary" />
               </div>
-              <p className="mt-4 text-lg font-medium text-muted-foreground">Your split groups will appear here.</p>
-              <p className="text-sm text-muted-foreground">Fill in the details on the left and click "Split List".</p>
+              <p className="mt-4 text-lg font-medium text-muted-foreground">Your generated groups will appear here.</p>
+              <p className="text-sm text-muted-foreground">Fill in the details on the left and click "Generate Groups".</p>
             </div>
           )}
         </div>

@@ -4,8 +4,8 @@ import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
-  title: 'List Splitter',
-  description: 'Easily split lists into groups.',
+  title: 'Random Group Generator',
+  description: 'Easily generate random groups from a list of items.',
 };
 
 export default function RootLayout({
