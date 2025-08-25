@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -108,6 +108,10 @@ export function RandomGroupGenerator() {
     document.body.removeChild(link);
   }, []);
 
+  const itemCount = useMemo(() => {
+    return listInput.split('\n').map(item => item.trim()).filter(item => item).length;
+  }, [listInput]);
+
   return (
     <div className="container mx-auto p-4 md:p-8">
       <header className="relative text-center mb-8 md:mb-12">
@@ -124,12 +128,17 @@ export function RandomGroupGenerator() {
         <div className="lg:col-span-2 flex flex-col gap-6">
           <Card className="shadow-md">
             <CardHeader>
-              <CardTitle className="font-headline text-2xl">1. Input Your List</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle className="font-headline text-2xl">1. Input Your List</CardTitle>
+                <span className="text-sm font-medium text-muted-foreground">
+                  {itemCount} item{itemCount !== 1 ? 's' : ''}
+                </span>
+              </div>
               <CardDescription>Enter each item on a new line.</CardDescription>
             </CardHeader>
             <CardContent>
               <Textarea 
-                placeholder="Apples&#10;Oranges&#10;Bananas&#10;Grapes&#10;Strawberries&#10;Blueberries"
+                placeholder="Apples\nOranges\nBananas\nGrapes\nStrawberries\nBlueberries"
                 className="min-h-[200px] text-base"
                 value={listInput}
                 onChange={(e) => setListInput(e.target.value)}
@@ -252,3 +261,5 @@ export function RandomGroupGenerator() {
     </div>
   );
 }
+
+    
